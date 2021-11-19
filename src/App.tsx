@@ -1,5 +1,7 @@
+import TextEditor from "@Components/TextEditor";
+
 function App() {
-    return <div className="App">Hello world</div>;
+    return <TextEditor />; // <div className="App">Hello world</div>;
 }
 
 export default App;
