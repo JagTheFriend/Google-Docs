@@ -8,9 +8,13 @@ const io: Server = require("socket.io")(3001, {
 });
 
 io.on("connection", (socket: Socket) => {
-    console.log("Connected!");
-    socket.on("send-changes", (delta) => {
-        // send the changes to everyone else (other clients)
-        socket.broadcast.emit("receive-changes", delta);
+    socket.on("get-document", (documentId: string) => {
+        const data = "";
+        socket.join(documentId);
+        socket.emit("load-document", data);
+        socket.on("send-changes", (delta) => {
+            // send the changes to a specific room/document
+            socket.broadcast.to(documentId).emit("receive-changes", delta);
+        });
     });
 });
