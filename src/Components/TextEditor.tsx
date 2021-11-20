@@ -85,5 +85,16 @@ export default function TextEditor() {
             socket.off("receive-changes", handler);
         };
     }, [socket, quill]);
+
+    // Request the server to save changes
+    useEffect(() => {
+        if (socket == null || quill == null) return;
+        const interval = setInterval(() => {
+            socket.emit("save-document", quill.getContents());
+        }, 2000);
+        return () => {
+            clearInterval(interval);
+        };
+    }, [socket, quill]);
     return <div className="container" ref={wrapperRef}></div>;
 }
