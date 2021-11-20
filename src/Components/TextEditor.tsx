@@ -44,6 +44,7 @@ export default function TextEditor() {
         };
     }, []);
 
+    // Sends the changes to the server
     useEffect(() => {
         // make sure that socket and quill is defined
         if (socket == null || quill == null) return;
@@ -54,6 +55,17 @@ export default function TextEditor() {
         quill.on("text-change", handler);
         return () => {
             quill.off("text-change", handler);
+        };
+    }, [socket, quill]);
+
+    // Receives the changes from the sever
+    useEffect(() => {
+        // make sure that socket and quill is defined
+        if (socket == null || quill == null) return;
+        const handler = (changes: Delta) => quill.updateContents(changes);
+        socket.on("receive-changes", handler);
+        return () => {
+            socket.off("receive-changes", handler);
         };
     }, [socket, quill]);
     return <div className="container" ref={wrapperRef}></div>;
