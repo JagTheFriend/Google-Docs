@@ -1,6 +1,6 @@
-# Getting Started with Create React App
+# Google docs
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a simple clone of [google docs](https://docs.google.com/) made with React and Socket.io
 
 ## Available Scripts
 
