@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import Quill from "quill";
 import Delta from "quill-delta";
 import { io } from "socket.io-client";
+import { useParams } from "react-router-dom";
 import "quill/dist/quill.snow.css";
 
 const TOOLBAR_OPTIONS = [
@@ -20,6 +21,9 @@ export default function TextEditor() {
     const [socket, setSocket] = useState(null as unknown as typeof io);
     const [quill, setQuill] = useState(null as unknown as Quill);
 
+    // Get the document ID from the url
+    const { id: documentId } = useParams();
+
     const wrapperRef = useCallback((wrapper) => {
         if (wrapper == null) return;
         wrapper.innerHTML = "";
@@ -27,16 +31,18 @@ export default function TextEditor() {
         wrapper.append(editor);
 
         // setup the quill editor window
-        setQuill(
-            new Quill(editor, {
-                theme: "snow",
-                modules: { toolbar: TOOLBAR_OPTIONS },
-            })
-        );
+        const q = new Quill(editor, {
+            theme: "snow",
+            modules: { toolbar: TOOLBAR_OPTIONS },
+        });
+        // get the document from the server before allowing the user to edit it
+        q.disable();
+        q.setText("Loading...");
+        setQuill(q);
     }, []);
 
+    // Connect to the server
     useEffect(() => {
-        // connect to the server
         const s = io("http://localhost:3001");
         setSocket(s);
         return () => {
@@ -57,6 +63,17 @@ export default function TextEditor() {
             quill.off("text-change", handler);
         };
     }, [socket, quill]);
+
+    useEffect(() => {
+        if (socket === null || quill === null) return;
+        // get a specific document from the server
+        socket.once("load-document", (document: Delta) => {
+            quill.setContents(document);
+            quill.enable(); // enable the text editor
+        });
+
+        socket.emit("get-document", documentId);
+    }, [socket, quill, documentId]);
 
     // Receives the changes from the sever
     useEffect(() => {
