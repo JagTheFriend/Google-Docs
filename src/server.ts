@@ -1,9 +1,18 @@
 import { Server, Socket } from "socket.io";
-import { connect } from "mongoose";
-import Document from "./Document";
+import { connect, Schema, model } from "mongoose";
 
 // connect to database
+interface Document {
+    _id: string;
+    data: Object;
+}
+const documentSchema = new Schema<Document>({
+    _id: String,
+    data: Object,
+});
+const Document = model<Document>("Document", documentSchema);
 connect("mongodb://localhost:27017/google-docs");
+
 const defaultValue = "";
 
 const io: Server = require("socket.io")(3001, {
@@ -17,7 +26,7 @@ io.on("connection", (socket: Socket) => {
         const document = await findOrCreateDocument(documentId);
 
         socket.join(documentId);
-        socket.emit("load-document", document.data);
+        socket.emit("load-document", document?.data);
 
         socket.on("send-changes", (delta) => {
             // send the changes to a specific room/document
