@@ -34,6 +34,6 @@ async function findOrCreateDocument(id: string) {
     if (id === null) return;
     const document = await Document.findById(id);
     if (document) return document;
-    // create document
-    return await document.create({ _id: id, data: defaultValue });
+    // Create the document if it is not found
+    return await Document.create({ _id: id, data: defaultValue });
 }
