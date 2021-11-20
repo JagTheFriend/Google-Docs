@@ -1,6 +1,7 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
+import { io } from "socket.io-client";
 
 const TOOLBAR_OPTIONS = [
     [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -15,6 +16,12 @@ const TOOLBAR_OPTIONS = [
 ];
 
 export default function TextEditor() {
+    useEffect(() => {
+        const socket = io("http://localhost:3001");
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
     // Run this function only once
     const wrapperRef = useCallback((wrapper: HTMLDivElement) => {
         if (wrapper === null) return;
